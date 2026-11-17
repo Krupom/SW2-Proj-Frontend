@@ -154,7 +154,7 @@ export default function BookingList() {
                             <Button variant="contained" onClick={() => openEditPopup(booking)}>
                                 Edit
                             </Button>
-                            <Button variant="contained" color="error" onClick={() => handleDeleteBooking(booking._id)} disabled={deletingBookingId !== null}>
+                            <Button variant="contained" color="error" onClick={() => handleDeleteBooking(booking._id)} disabled={deletingBookingId === booking._id}>
                                 {deletingBookingId === booking._id ? "Deleting..." : "Delete"}
                             </Button>
                         </div>
