@@ -14,6 +14,7 @@ export default function BookingList() {
     const [bookingList, setBookingList] = useState<Booking[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [deletingBookingId, setDeletingBookingId] = useState<string | null>(null);
     const [updateError, setUpdateError] = useState<string | null>(null);
     const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
     const [updatedSchedule, setUpdatedSchedule] = useState<BookingSchedule>({
@@ -71,12 +72,16 @@ export default function BookingList() {
 
     const handleDeleteBooking = async (bookingId: string) => {
         if (!session?.user?.token) return;
+        if (!window.confirm("Are you sure you want to delete this booking?")) return;
 
+        setDeletingBookingId(bookingId);
         try {
             await deleteBooking(bookingId, session.user.token);
             setBookingList((bookings) => bookings.filter((booking) => booking._id !== bookingId));
         } catch (error: unknown) {
             setError(error instanceof Error ? error.message : "Failed to delete booking.");
+        } finally {
+            setDeletingBookingId(null);
         }
     };
 
@@ -149,8 +154,8 @@ export default function BookingList() {
                             <Button variant="contained" onClick={() => openEditPopup(booking)}>
                                 Edit
                             </Button>
-                            <Button variant="contained" color="error" onClick={() => handleDeleteBooking(booking._id)}>
-                                Delete
+                            <Button variant="contained" color="error" onClick={() => handleDeleteBooking(booking._id)} disabled={deletingBookingId !== null}>
+                                {deletingBookingId === booking._id ? "Deleting..." : "Delete"}
                             </Button>
                         </div>
                     </div>
