@@ -3,8 +3,18 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import MapViewer from "@/components/MapViewerWrapper";
+import { Suspense } from "react";
+import { LinearProgress } from "@mui/material";
 
-export default async function FacilityDetailPage({ params }: { params: Promise<{ fid: string }> }) {
+export default function FacilityDetailPage({ params }: { params: Promise<{ fid: string }> }) {
+    return (
+        <Suspense fallback={<div className="p-5">Loading ... <LinearProgress /></div>}>
+            <FacilityDetailContent params={params} />
+        </Suspense>
+    );
+}
+
+async function FacilityDetailContent({ params }: { params: Promise<{ fid: string }> }) {
     const { fid } = await params;
     const facilityDetail = await getFacility(fid);
     const facility = facilityDetail.data;

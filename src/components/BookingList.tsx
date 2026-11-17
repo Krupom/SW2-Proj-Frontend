@@ -4,6 +4,7 @@ import updateBooking from "@/libs/updateBooking";
 import deleteBooking from "@/libs/deleteBooking";
 import DateReserve from "@/components/DateReserve";
 import Button from "@mui/material/Button";
+import LinearProgress from "@mui/material/LinearProgress";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -11,6 +12,7 @@ import { useSession } from "next-auth/react";
 export default function BookingList() {
     const { data: session } = useSession();
     const [bookingList, setBookingList] = useState<Booking[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [updateError, setUpdateError] = useState<string | null>(null);
     const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
@@ -86,6 +88,8 @@ export default function BookingList() {
                     setBookingList(bookings.data);
                 } catch (error: unknown) {
                     setError(error instanceof Error ? error.message : "Failed to fetch bookings.");
+                } finally {
+                    setIsLoading(false);
                 }
             }
         };
@@ -95,8 +99,9 @@ export default function BookingList() {
 
     return (
         <div className="w-full max-w-3xl space-y-2">
+            {isLoading && <div>Loading bookings...<LinearProgress /></div>}
             {error && <p className="text-red-500">{error}</p>}
-            {bookingList.length === 0 ? (
+            {!isLoading && bookingList.length === 0 ? (
                 <p>No Facility Booking</p>
             ) : null}
             {bookingList.map((booking) => (

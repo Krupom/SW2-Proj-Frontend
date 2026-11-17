@@ -2,8 +2,18 @@ import BookingList from "@/components/BookingList";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { LinearProgress } from "@mui/material";
 
-export default async function MyBookingsPage() {
+export default function MyBookingsPage() {
+    return (
+        <Suspense fallback={<div className="p-5">Loading ... <LinearProgress /></div>}>
+            <MyBookingsContent />
+        </Suspense>
+    );
+}
+
+async function MyBookingsContent() {
     const session = await getServerSession(authOptions);
     if (!session?.user?.token) {
         redirect("/api/auth/signin");
