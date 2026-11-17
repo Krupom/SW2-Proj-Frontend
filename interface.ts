@@ -38,6 +38,8 @@ interface Facility {
   name: string;
   sportType: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   capacity: number;
   hourlyRate: number;
   isActive: boolean;
@@ -48,6 +50,22 @@ interface Facility {
 interface FacilityResponse {
   success: boolean;
   data: Facility;
+}
+
+interface UpdateFacilityInput {
+  name?: string;
+  sportType?: string;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  capacity?: number;
+  hourlyRate?: number;
+  isActive?: boolean;
+}
+
+interface DeleteFacilityResponse {
+  success: boolean;
+  data: Record<string, never>;
 }
 
 interface FacilityListResponse {
@@ -93,6 +111,13 @@ interface CreateBookingInput {
   durationHours: number;
 }
 
+interface UpdateBookingInput {
+  facility?: string;
+  bookingDate?: string;
+  startTime?: string;
+  durationHours?: number;
+}
+
 interface BookingSchedule {
   bookingDate: string;
   startTime: string;
@@ -108,6 +133,11 @@ interface BookingListResponse {
   success: boolean;
   count: number;
   data: Booking[];
+}
+
+interface DeleteBookingResponse {
+  success: boolean;
+  data: Record<string, never>;
 }
 
 

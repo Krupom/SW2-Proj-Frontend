@@ -3,7 +3,7 @@ import { useState } from "react";
 import createFacility from "@/libs/createFacility";
 import { useSession } from "next-auth/react";
 
-export default function CreateFacilityForm() {
+export default function CreateFacilityForm({ onCreated }: { onCreated?: () => void }) {
     const { data: session } = useSession();
     const [newFormData, setNewFormData] = useState({
         name: "",
@@ -38,6 +38,7 @@ export default function CreateFacilityForm() {
             return;
         }
 
+        setIsSubmitting(true);
         try {
             await createFacility(newFormData, token);
             setNewFormData({
@@ -47,39 +48,46 @@ export default function CreateFacilityForm() {
                 capacity: 0,
                 hourlyRate: 0,
             });
-            alert("Facility created successfully!");
-        } catch (error) {
+            if (onCreated) {
+                onCreated();
+            } else {
+                alert("Facility created successfully!");
+            }
+        } catch (error: unknown) {
             console.error("Error creating facility:", error);
             setError("Failed to create facility. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col items-start p-4 ">
-            <div className="text-xl text-blue-700">Create New Facility</div>
-            <div className="flex items-center w-1/2 my-2">
+        <form onSubmit={handleSubmit} className="flex flex-col items-start px-4 ">
+            <div className="flex items-center w-full my-2">
                 <label htmlFor="name" className="w-1/3">Name </label>
                 <input type="text" id="name" name="name" className="w-2/3 border border-gray-300 rounded px-2 py-1" onChange={handleInputChange} value={newFormData.name} />
             </div>
-            <div className="flex items-center w-1/2 my-2">
+            <div className="flex items-center w-full my-2">
                 <label htmlFor="sport-type" className="w-1/3">Sport Type </label>
                 <input type="text" id="sport-type" name="sportType" className="w-2/3 border border-gray-300 rounded px-2 py-1" onChange={handleInputChange} value={newFormData.sportType} />
             </div>
-            <div className="flex items-center w-1/2 my-2">
+            <div className="flex items-center w-full my-2">
                 <label htmlFor="location" className="w-1/3">Location </label>
                 <input type="text" id="location" name="location" className="w-2/3 border border-gray-300 rounded px-2 py-1" onChange={handleInputChange} value={newFormData.location} />
             </div>
-            <div className="flex items-center w-1/2 my-2">
+            <div className="flex items-center w-full my-2">
                 <label htmlFor="capacity" className="w-1/3">Capacity </label>
                 <input type="number" id="capacity" name="capacity" className="w-2/3 border border-gray-300 rounded px-2 py-1" onChange={handleInputChange} value={newFormData.capacity} />
             </div>
-            <div className="flex items-center w-1/2 my-2">
+            <div className="flex items-center w-full my-2 mb-6">
                 <label htmlFor="hourly-rate" className="w-1/3">Hourly Rate </label>
                 <input type="number" id="hourly-rate" name="hourlyRate" className="w-2/3 border border-gray-300 rounded px-2 py-1" onChange={handleInputChange} value={newFormData.hourlyRate} />
             </div>
-            <button type="submit" className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Facility"}
-            </button>
+            <div className="flex w-full justify-end">
+                <button type="submit" className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60" disabled={isSubmitting}>
+                    {isSubmitting ? "Creating..." : "Create Facility"}
+                </button>
+            </div>
             {error && <div className="text-red-500">{error}</div>}
         </form>
     );

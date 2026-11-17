@@ -2,21 +2,15 @@
 
 import DateReserve from "@/components/DateReserve";
 import Button from "@mui/material/Button";
-import { authOptions } from "../api/auth/[...nextauth]/authOptions";
-import { getServerSession } from "next-auth";
-import getUserProfile from "@/libs/getUserProfile";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { addBooking } from "@/redux/features/bookSlice";
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import createBooking from "@/libs/createBooking";
 import { useSession } from "next-auth/react";
 
 
 export default function BookingPage() {
     const { data: session } = useSession();
-    const dispatch = useDispatch<AppDispatch>();
+    const router = useRouter();
     const searchParams = useSearchParams();
     const facilityId = searchParams.get("facility");
     const [bookingData, setBookingData] = useState<BookingSchedule>({
@@ -27,6 +21,12 @@ export default function BookingPage() {
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [resetKey, setResetKey] = useState(0);
+
+    useEffect(() => {
+        if (!session?.user?.token) {
+            router.replace("/api/auth/signin");
+        }
+    }, [session?.user?.token, router]);
 
     const handleBookingChange = (bookingItem: BookingSchedule) => {
         setBookingData(bookingItem)
@@ -54,6 +54,7 @@ export default function BookingPage() {
             await createBooking(booking, session.user.token);
             alert("Booking successful!");
             setError(null);
+            setResetKey(prev => prev + 1);
         } catch (error: unknown) {
             setError(
                 error instanceof Error
@@ -62,9 +63,12 @@ export default function BookingPage() {
             );
         }
         setIsSubmitting(false);
-        setResetKey(prev => prev + 1);
     }
 
+
+    if (!session?.user?.token) {
+        return <main className="p-5 text-center">Redirecting to sign in...</main>;
+    }
 
     return (
         <main className="w-[100%] flex flex-col items-center space-y-4">

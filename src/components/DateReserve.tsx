@@ -6,11 +6,16 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import TextField from "@mui/material/TextField";
 import { useState } from "react";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useEffect } from "react";
 
+type DateReserveProps = {
+    resetKey: number;
+    initialSchedule?: BookingSchedule;
+    onBookingChange: (bookingItem: BookingSchedule) => void;
+};
 
-export default function DateReserve({ resetKey, onBookingChange }: { resetKey: number; onBookingChange: (bookingItem: BookingSchedule) => void }) {
+export default function DateReserve({ resetKey, initialSchedule, onBookingChange }: DateReserveProps) {
 
     const [bookingDate, setBookingDate] = useState<Dayjs | null>(null);
     const [startTime, setStartTime] = useState<Dayjs | null>(null);
@@ -26,15 +31,28 @@ export default function DateReserve({ resetKey, onBookingChange }: { resetKey: n
     }, [bookingDate, startTime, durationHours]);
 
     useEffect(() => {
+        if (initialSchedule) {
+            setBookingDate(dayjs(initialSchedule.bookingDate));
+            setStartTime(dayjs(`2000-01-01T${initialSchedule.startTime}`));
+            setDurationHours(initialSchedule.durationHours);
+            return;
+        }
+
         setBookingDate(null);
         setStartTime(null);
         setDurationHours(0.5);
-    }, [resetKey]);
+    }, [
+        resetKey,
+        initialSchedule?.bookingDate,
+        initialSchedule?.startTime,
+        initialSchedule?.durationHours,
+    ]);
 
     return (
-        <div className="bg-slate-100 rounded-lg gap-x-5 gap-y-2 w-fit px-10 py-5 flex flex-row justify-center">
+        <div className="flex w-full flex-nowrap items-center justify-center gap-3 overflow-x-auto rounded-lg bg-slate-100 px-3 py-5">
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker className="bg-white"
+                    sx={{ width: 200, flexShrink: 0 }}
                     value={bookingDate}
                     onChange={(newDate) => setBookingDate(newDate)}
                 />
@@ -43,6 +61,7 @@ export default function DateReserve({ resetKey, onBookingChange }: { resetKey: n
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker
                     label="Start Time"
+                    sx={{ width: 200, flexShrink: 0 }}
                     ampm={false}
                     format="HH:mm"
                     value={startTime}
@@ -54,6 +73,7 @@ export default function DateReserve({ resetKey, onBookingChange }: { resetKey: n
                 variant="standard"
                 name="Duration-Hours"
                 label="Duration-Hours"
+                sx={{ width: 180, flexShrink: 0 }}
                 type="number"
                 value={durationHours}
                 onChange={(e) => setDurationHours(Number(e.target.value))}

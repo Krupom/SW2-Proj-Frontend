@@ -1,53 +1,53 @@
-import Image from "next/image";
 import getFacility from "@/libs/getFacility";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import MapViewer from "@/components/MapViewerWrapper";
 
 export default async function FacilityDetailPage({ params }: { params: Promise<{ fid: string }> }) {
     const { fid } = await params;
     const facilityDetail = await getFacility(fid);
+    const facility = facilityDetail.data;
+    const session = await getServerSession(authOptions);
+    const hasToken = Boolean(session?.user?.token);
+    const canBook = session?.user?.role === "member" && Boolean(session.user.token);
     return (
-        <main className="text-center p-5">
-            <h1 className="text-2xl font-bold">{facilityDetail.data.name}</h1>
-            <div className="flex flex-row my-5">
-                <Image
-                    src={facilityDetail.data.picture}
-                    alt="Sports Facility Image"
-                    width={0}
-                    height={0}
-                    sizes="100vw"
-                    className="rounded-lg w-[30%]"
-                />
-                <div className="flex flex-col items-start">
-                    <div className="text-md mx-5">
-                        Name: {facilityDetail.data.name}
-                    </div>
-                    <div className="text-md mx-5">
-                        Address: {facilityDetail.data.address}
-                    </div>
-                    <div className="text-md mx-5">
-                        District: {facilityDetail.data.district}
-                    </div>
-                    <div className="text-md mx-5">
-                        Province: {facilityDetail.data.province}
-                    </div>
-                    <div className="text-md mx-5">
-                        Postal Code: {facilityDetail.data.postalcode}
-                    </div>
-                    <div className="text-md mx-5">
-                        Tel: {facilityDetail.data.tel}
-                    </div>
-                    <div className="text-md mx-5">
-                        Daily Rate: {facilityDetail.data.dailyrate}
-                    </div>
+        <main className="w-full p-5">
+            <h1 className="mb-10 text-center text-3xl font-bold">{facility.name}</h1>
+            <div className="mx-auto grid max-w-5xl grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+                <div className="h-80 overflow-hidden rounded-lg bg-slate-100">
+                    {facility.latitude != null && facility.longitude != null ? (
+                        <MapViewer lat={facility.latitude} lng={facility.longitude} />
+                    ) : (
+                        <div className="flex h-full items-center justify-center text-slate-500">
+                            Map location unavailable
+                        </div>
+                    )}
+                </div>
+                <div className="text-left text-lg leading-8 text-slate-800">
+                    <p>Name: {facility.name}</p>
+                    <p>Sport Type: {facility.sportType}</p>
+                    <p>Location: {facility.location}</p>
+                    <p>Capacity: {facility.capacity} people</p>
+                    <p>Hourly Rate: ${facility.hourlyRate.toFixed(2)} per hour</p>
                 </div>
             </div>
 
-            <Link
-                href={`/booking?facility=${fid}`}
-                className="inline-block rounded bg-blue-500 px-4 py-2 text-white! hover:bg-blue-700"
-            >
-                Book Facility
-            </Link>
+            <div className="mt-6 text-center">
+            {canBook && (
+                <Link
+                    href={`/booking?facility=${fid}`}
+                    className="inline-block rounded bg-blue-500 px-4 py-2 !text-white hover:bg-blue-700"
+                >
+                    Book Facility
+                </Link>
+            )}
+            {!hasToken && (
+                <Link href="/api/auth/signin" className="font-medium !text-blue-700 !underline">
+                    Login to book
+                </Link>
+            )}
+            </div>
 
         </main>
     );

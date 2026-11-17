@@ -3,6 +3,8 @@ export default async function createFacility(
         name: string;
         sportType: string;
         location: string;
+        latitude?: number;
+        longitude?: number;
         capacity: number;
         hourlyRate: number;
         isActive?: boolean;
