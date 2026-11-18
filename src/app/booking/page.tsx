@@ -40,8 +40,8 @@ export default function BookingPage() {
             startTime: bookingData.startTime,
             durationHours: bookingData.durationHours
         }
-        if (!session?.user?.token) {
-            setError("User is not authenticated. Please log in to book a facility.");
+        if (!session?.user?.token || session.user.role !== "member") {
+            setError("You don't have permission to book a facility.");
             setIsSubmitting(false);
             return;
         }
@@ -68,6 +68,10 @@ export default function BookingPage() {
 
     if (!session?.user?.token) {
         return <main className="p-5 text-center">Redirecting to sign in...</main>;
+    }
+
+    if (session.user.role !== "member") {
+        return <main className="p-5 text-center">You don't have permission to access this page.</main>;
     }
 
     return (
