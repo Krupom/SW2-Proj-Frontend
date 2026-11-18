@@ -53,6 +53,7 @@ export default function DateReserve({ resetKey, initialSchedule, onBookingChange
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker className="bg-white"
                     sx={{ width: 200, flexShrink: 0 }}
+                    disablePast
                     value={bookingDate}
                     onChange={(newDate) => setBookingDate(newDate)}
                 />
@@ -64,6 +65,7 @@ export default function DateReserve({ resetKey, initialSchedule, onBookingChange
                     sx={{ width: 200, flexShrink: 0 }}
                     ampm={false}
                     format="HH:mm"
+                    minTime={bookingDate?.isSame(dayjs(), "day") ? dayjs() : undefined}
                     value={startTime}
                     onChange={(newValue) => setStartTime(newValue)}
                 />
