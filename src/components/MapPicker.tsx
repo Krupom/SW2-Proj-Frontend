@@ -1,8 +1,9 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { useEffect } from "react";
 
 type MapPickerProps = {
     lat: number;
@@ -32,6 +33,16 @@ function MapClickHandler({
     return null;
 }
 
+function MapCenter({ lat, lng }: { lat: number; lng: number }) {
+    const map = useMap();
+
+    useEffect(() => {
+        map.setView([lat, lng], map.getZoom(), { animate: false });
+    }, [map, lat, lng]);
+
+    return null;
+}
+
 export default function MapPicker({
     lat,
     lng,
@@ -48,6 +59,7 @@ export default function MapPicker({
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
+            <MapCenter lat={lat} lng={lng} />
             <MapClickHandler onChange={onChange} />
 
             <Marker
