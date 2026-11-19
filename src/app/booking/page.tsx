@@ -81,7 +81,7 @@ export default function BookingPage() {
 
 
             <div className="w-fit space-y-2">
-                <div className="text-md text-left text-gray-600">Date, Contact Information and Facility</div>
+                <div className="text-md text-left text-gray-600">Date, Start Time, and Duration</div>
                 <DateReserve resetKey={resetKey} onBookingChange={handleBookingChange} />
             </div>
 
